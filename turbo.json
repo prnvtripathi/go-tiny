@@ -11,6 +11,11 @@
         },
         "dev": {
             "cache": false
+        },
+        "lint": {
+            "dependsOn": [
+                "^lint"
+            ]
         }
     }
 }
