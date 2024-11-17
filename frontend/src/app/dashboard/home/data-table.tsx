@@ -13,8 +13,8 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import * as React from "react"
-import { Button } from "./button"
-import { Input } from "./input"
+import { Button } from "../../../components/ui/button"
+import { Input } from "../../../components/ui/input"
 import {
     Table,
     TableBody,
@@ -29,16 +29,22 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
+import { Loader } from "lucide-react"
 
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    isLoading?: boolean
+    isError?: boolean
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    isLoading,
+    isError,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -60,6 +66,10 @@ export function DataTable<TData, TValue>({
             columnVisibility,
         },
     })
+
+    if (isError) {
+        toast.error("Failed to fetch data.")
+    }
 
 
     return (
@@ -123,7 +133,13 @@ export function DataTable<TData, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center flex justify-center items-center">
+                                    <Loader className="h-6 w-6 transform animate-spin" />
+                                </TableCell>
+                            </TableRow>
+                        ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
@@ -139,11 +155,12 @@ export function DataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    No data found.
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
+
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">

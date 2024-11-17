@@ -2,7 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
-import { MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react"
+import { MoreHorizontal, ChevronDown, ChevronUp, Trash2, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -13,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from 'sonner'
-
+import { useGetUrls } from '@/hooks/useGetUrls'
 export type Url = {
     original_url: string
     name: string
@@ -23,13 +23,13 @@ export type Url = {
     // clicks: number //TODO: Implement click tracking
 }
 
-export const columns: ColumnDef<Url>[] = [
+export const columns = ({ mutate }: { mutate: () => void }): ColumnDef<Url>[] => [
     {
         accessorKey: 'name',
         header: ({ column }) => {
             return (
-                <Button
-                    variant="ghost"
+                <span
+                    className='flex items-center justify-start cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Name
@@ -42,7 +42,7 @@ export const columns: ColumnDef<Url>[] = [
                     ) : (
                         <ChevronDown className="ml-2 h-4 w-4" />
                     )}
-                </Button>
+                </span>
             )
         },
     },
@@ -65,8 +65,8 @@ export const columns: ColumnDef<Url>[] = [
     {
         header: ({ column }) => {
             return (
-                <Button
-                    variant="ghost"
+                <span
+                    className='flex items-center justify-start cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
                     Expires At
@@ -76,11 +76,11 @@ export const columns: ColumnDef<Url>[] = [
                         ) : (
                             <ChevronUp className="ml-2 h-4 w-4 transform rotate-180 transition-transform duration-200" />
                         )
-                    ) : 
-                    (
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
+                    ) :
+                        (
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        )}
+                </span>
             )
         },
         accessorKey: 'expires_at',
@@ -122,6 +122,22 @@ export const columns: ColumnDef<Url>[] = [
         cell: ({ row }) => {
             const url = row.original
 
+            const handleDelete = async (id: number) => {
+                try {
+                    const response = await fetch(`/api/backend/deleteUrl`, {
+                        body: JSON.stringify({ url_id: id }),
+                        method: 'DELETE',
+                    })
+                    const data = await response.json()
+                    toast.success(data.message)
+                    // Revalidate the data after successful deletion
+                    mutate()
+                } catch (error) {
+                    console.error(error)
+                    toast.error("Failed to delete URL")
+                }
+            }
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -138,10 +154,17 @@ export const columns: ColumnDef<Url>[] = [
                                 toast.success("Copied to clipboard")
                             }}
                         >
+                            <Copy className="h-4 w-4" />
                             Copy Short URL
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
+                        <DropdownMenuItem
+                            className='text-red-600 dark:text-red-400 hover:bg-red-300 dark:hover:bg-red-800/20'
+                            onClick={() => handleDelete(url.url_id)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Delete URL
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
