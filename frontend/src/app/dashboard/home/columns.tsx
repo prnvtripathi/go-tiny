@@ -13,7 +13,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from 'sonner'
-import { useGetUrls } from '@/hooks/useGetUrls'
 export type Url = {
     original_url: string
     name: string
