@@ -1,29 +1,31 @@
-import useSWR from 'swr'
-import { Url } from '@/app/dashboard/home/columns'
+import useSWR from "swr";
+import { Url } from "@/app/dashboard/home/columns";
 
 interface UrlResponse {
-    urls: Url[]
+  urls: Url[];
 }
 
 // Define fetcher function
 const fetcher = async (url: string): Promise<UrlResponse> => {
-    const response = await fetch(url)
-    if (!response.ok) {
-        throw new Error('Failed to fetch URLs')
-    }
-    return response.json()
-}
+  const response = await fetch(url);
+  if (!response.ok && response.status === 429) {
+    throw new Error("Too Many Requests. Cool down buddy!");
+  } else if (!response.ok) {
+    throw new Error("Failed to fetch data.");
+  }
+  return response.json();
+};
 
 export function useGetUrls() {
-    const { data, error, isLoading, mutate } = useSWR<UrlResponse>(
-        '/api/backend/getUrls',
-        fetcher
-    )
+  const { data, error, isLoading, mutate } = useSWR<UrlResponse>(
+    "/api/backend/getUrls",
+    fetcher
+  );
 
-    return {
-        urls: data?.urls ?? [],
-        isLoading,
-        isError: error,
-        mutate,
-    }
+  return {
+    urls: data?.urls ?? [],
+    isLoading,
+    isError: error,
+    mutate,
+  };
 }
