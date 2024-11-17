@@ -1,5 +1,10 @@
 .turbo/*
 
+frontend/.turbo/*
+backend/.turbo/*
+
 node_modules/*
+
+*/node_modules/*
 
 backend/tmp/*
