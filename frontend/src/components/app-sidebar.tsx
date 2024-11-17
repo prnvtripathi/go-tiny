@@ -17,6 +17,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
+import ThemeToggle from "./ui/theme-toggle"
 
 export function AppSidebar() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -99,6 +100,9 @@ export function AppSidebar() {
                         >
                             <ChevronsLeft className={`h-6 w-6 ${isSidebarOpen ? "" : "transform rotate-180"} transition-transform duration-300`} />
                         </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <ThemeToggle />
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton
