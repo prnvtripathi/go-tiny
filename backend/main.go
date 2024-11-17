@@ -19,11 +19,17 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 // using the healthCheck handler function. If the server fails to start,
 // it logs the error and exits.
 func main() {
-
-	// Load environment variables from .env file
+	// Load environment variables
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Error loading .env.local file")
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	fmt.Println("Environment variables loaded")
+
+	// Connect to Redis
+	err = connectRedis()
+	if err != nil {
+		log.Fatalf("Redis connection failed: %v", err)
 	}
 
 	// Connect to the database
@@ -33,13 +39,12 @@ func main() {
 	}
 	defer shortener.CloseDB()
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Server is up and running")
-	})
-	http.HandleFunc("/shorten", shortener.ShortenURL) // Shorten URL handler
-	http.HandleFunc("/r/", redirect.RedirectHandler)  // Redirect handler
-	http.HandleFunc("/getUrls", getUrlsHandler)       // Get URLs handler
-	http.HandleFunc("/deleteUrl", deleteUrlHandler)   // Delete URL handler
+	// Use the RateLimiter middleware
+	http.Handle("/health", RateLimiter(http.HandlerFunc(healthCheck)))
+	http.Handle("/shorten", RateLimiter(http.HandlerFunc(shortener.ShortenURL)))
+	http.Handle("/r/", RateLimiter(http.HandlerFunc(redirect.RedirectHandler)))
+	http.Handle("/getUrls", RateLimiter(http.HandlerFunc(getUrlsHandler)))
+	http.Handle("/deleteUrl", RateLimiter(http.HandlerFunc(deleteUrlHandler)))
 
 	// Start the server
 	fmt.Println("Server is running on port 8080...")
