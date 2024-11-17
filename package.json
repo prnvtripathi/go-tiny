@@ -1,0 +1,19 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A url shortener service that uses go-lang backend and nextjs frontend",
+  "packageManager": "npm@10.9.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pranav Kumar Tripathi",
+  "license": "MIT",
+  "dependencies": {
+    "turbo": "^2.3.0"
+  }
+}
