@@ -83,7 +83,7 @@ export default function UrlShortenerForm({ isDialog }: { isDialog?: boolean }) {
   };
 
   return (
-    <div className="mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div className="mt-10 p-6 bg-white dark:bg-black/90 outline outline-1 outline-gray-700 dark:outline-gray-400 rounded-lg shadow-md">
       {!isDialog && (
         <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
           Create Short URL
