@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/prnvtripathi/go-url-api/redirect"
@@ -19,15 +20,19 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 // using the healthCheck handler function. If the server fails to start,
 // it logs the error and exits.
 func main() {
-	// Load environment variables
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+	// Load .env only if running locally (not in production)
+	env := os.Getenv("APP_ENV") // Assume "APP_ENV" determines the environment
+	if env != "production" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Printf("Warning: No .env file found. Continuing without it.")
+		} else {
+			fmt.Println("Environment variables loaded from .env")
+		}
 	}
-	fmt.Println("Environment variables loaded")
 
 	// Connect to Redis
-	err = connectRedis()
+	err := connectRedis()
 	if err != nil {
 		log.Fatalf("Redis connection failed: %v", err)
 	}
@@ -46,9 +51,15 @@ func main() {
 	http.Handle("/getUrls", RateLimiter(http.HandlerFunc(getUrlsHandler)))
 	http.Handle("/deleteUrl", RateLimiter(http.HandlerFunc(deleteUrlHandler)))
 
+	// Determine the port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	// Start the server
-	fmt.Println("Server is running on port 8080...")
-	err = http.ListenAndServe(":8080", nil)
+	fmt.Printf("Server is running on port %s...\n", port)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
