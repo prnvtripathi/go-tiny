@@ -21,7 +21,7 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 // it logs the error and exits.
 func main() {
 	// Load .env only if running locally (not in production)
-	env := os.Getenv("APP_ENV") // Assume "APP_ENV" determines the environment
+	env := os.Getenv("ENVIRONMENT") // Assume "APP_ENV" determines the environment
 	if env != "production" {
 		err := godotenv.Load(".env")
 		if err != nil {
