@@ -2,7 +2,9 @@
 package redirect
 
 import (
+	"log"
 	"net/http"
+	"net"
 	"strings"
 
 	"github.com/prnvtripathi/go-url-api/shortener"
@@ -30,6 +32,50 @@ func RedirectHandler(w http.ResponseWriter, r *http.Request) {
 		originalURL = "http://" + originalURL
 	}
 
+	// Asynchronously log analytics
+	go logAnalytics(r, code)
+	go shortener.IncrementClickCount(code)
+
 	// Redirect to the original URL
 	http.Redirect(w, r, originalURL, http.StatusFound)
+}
+
+// GetClientIP extracts the client's IP address from the request.
+func GetClientIP(r *http.Request) string {
+	// Check X-Forwarded-For header
+	forwarded := r.Header.Get("X-Forwarded-For")
+	if forwarded != "" {
+		// Use the first IP in the list
+		ips := strings.Split(forwarded, ",")
+		return strings.TrimSpace(ips[0])
+	}
+
+	// Check X-Real-IP header
+	realIP := r.Header.Get("X-Real-IP")
+	if realIP != "" {
+		return realIP
+	}
+
+	// Fallback to RemoteAddr
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr // Return as is if splitting fails
+	}
+	return ip
+}
+
+// logAnalytics records traffic details in the database.
+func logAnalytics(r *http.Request, code string) {
+	// Extract analytics data
+	referrer := r.Referer()
+	userAgent := r.UserAgent()
+	ipAddress := GetClientIP(r)
+
+	log.Printf("Logging analytics for code %s: referrer=%s, userAgent=%s, ipAddress=%s\n", code, referrer, userAgent, ipAddress)
+
+	// Log analytics to the database
+	err := shortener.LogAnalytics(code, referrer, userAgent, ipAddress)
+	if err != nil {
+		// Log the error (optional)
+	}
 }

@@ -4,7 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
+	"os"
 	"time"
+
+	"github.com/ipinfo/go/v2/ipinfo"
+	"github.com/ua-parser/uap-go/uaparser"
 )
 
 // SaveURL stores the original URL, short code, and expiration time in the database.
@@ -114,5 +119,113 @@ func DeleteUrl(urlId int, userId int) error {
 	}
 	defer rows.Close()
 
+	return nil
+}
+
+// GeoLocation represents the geo-location data of an IP address.
+type GeoLocation struct {
+	Country string `json:"country"`
+	Region  string `json:"region"`
+	City    string `json:"city"`
+}
+
+// LogAnalytics logs analytics data, including geo-location, even if some fields are missing initially.
+func LogAnalytics(code, referrer, userAgent, ipAddress string) error {
+	urlID, err := getURLIDFromCode(code)
+	if err != nil {
+		log.Printf("Error getting URL ID for code %s: %v", code, err)
+		return err
+	}
+
+	// Parse user agent
+	browser, os := ParseUserAgent(userAgent)
+
+	// Fetch geo-location data
+	location, err := getGeoLocation(ipAddress)
+	if err != nil {
+		log.Printf("Error fetching geo-location for IP %s: %v", ipAddress, err)
+		location = &GeoLocation{}
+	}
+
+	// Insert initial data into database (without geolocation)
+	query := `
+		INSERT INTO url_analytics (urlid, referrer, user_agent, browser, os, ip_address, country, region, city)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	`
+	_, err = DB.Query(context.Background(), query, urlID, referrer, userAgent, browser, os, ipAddress, location.Country, location.Region, location.City)
+
+	if err != nil {
+		log.Printf("Error inserting analytics data: %v", err)
+
+		// Retry inserting data without geolocation
+		query = `
+			INSERT INTO url_analytics (urlid, referrer, user_agent, browser, os, ip_address)
+			VALUES ($1, $2, $3, $4, $5, $6)
+		`
+		_, err = DB.Query(context.Background(), query, urlID, referrer, userAgent, browser, os, ipAddress)
+		if err != nil {
+			log.Printf("Error inserting analytics data (without geolocation): %v", err)
+		}
+	}
+
+	return nil
+}
+
+// getGeoLocation fetches geo-location data using an API.
+func getGeoLocation(ipAddress string) (*GeoLocation, error) {
+	token := os.Getenv("IPINFO_TOKEN")
+
+	client := ipinfo.NewClient(nil, nil, token)
+
+	info, err := client.GetIPInfo(net.ParseIP(ipAddress))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	location := &GeoLocation{
+		Country: info.Country,
+		Region:  info.Region,
+		City:    info.City,
+	}
+
+
+	return location, nil
+
+}
+
+// ParseUserAgent extracts browser and OS details from the User-Agent string.
+func ParseUserAgent(userAgent string) (string, string) {
+	parser, err := uaparser.New("./regexes.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := parser.Parse(userAgent)
+
+	browser := client.UserAgent.Family
+	os := client.Os.Family
+
+	return browser, os
+}
+
+// getURLIDFromCode retrieves the URL ID using the short code.
+func getURLIDFromCode(code string) (int, error) {
+	var urlID int
+	query := `SELECT urlid FROM urls WHERE short_code = $1`
+	err := DB.QueryRow(context.Background(), query, code).Scan(&urlID)
+	if err != nil {
+		return 0, err
+	}
+	return urlID, nil
+}
+
+// IncrementClickCount increments the click count for a URL.
+func IncrementClickCount(code string) error {
+	query := `UPDATE urls SET click_count = click_count + 1 WHERE short_code = $1`
+	_, err := DB.Exec(context.Background(), query, code)
+	if err != nil {
+		return err
+	}
 	return nil
 }

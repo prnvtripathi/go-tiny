@@ -8,3 +8,4 @@ node_modules/*
 */node_modules/*
 
 backend/tmp/*
+backend/regexes.yaml
