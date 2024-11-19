@@ -158,7 +158,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center flex justify-center items-center"
                 >
-                  <Loader className="h-6 w-6 transform animate-spin" />
+                  <Loader className="h-6 w-6" />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (

@@ -22,6 +22,8 @@ export const GET = async () => {
       short_code: `${process.env.BACKEND_URL}/r/${url.short_code}`,
     };
   });
+  console.log(updatedUrls);
+  console.log(data);
   return NextResponse.json({ urls: updatedUrls });
 };
 
@@ -30,6 +32,7 @@ type Url = {
   user_id: number;
   url: string;
   name: string;
+  click_count: number;
   short_code: string;
   created_at: string;
 };

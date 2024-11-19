@@ -1,6 +1,6 @@
 "use client"
 
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -9,6 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarProvider>
             <AppSidebar />
             <main>
+                <SidebarTrigger className="fixed left-2 bottom-2 flex md:hidden" />
                 {children}
             </main>
         </SidebarProvider>
