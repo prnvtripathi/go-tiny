@@ -25,6 +25,9 @@ WORKDIR /root/
 # Copy the pre-built binary file from the builder stage
 COPY --from=builder /app/main .
 
+# Copy the regexes.yaml file
+COPY --from=builder /app/regexes.yaml .
+
 # Copy any necessary environment files
 COPY .env .
 
