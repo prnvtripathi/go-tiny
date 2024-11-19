@@ -66,12 +66,13 @@ type URL struct {
 	ShortCode   string    `json:"short_code"`
 	ExpiresAt   time.Time `json:"expires_at"`
 	UrlId       int       `json:"url_id"`
+	ClickCount  int       `json:"click_count"`
 }
 
 // GetAllUrls retrieves all URLs created by a user from the database.
 func GetAllUrls(userId int) ([]URL, error) {
 	query := `
-		SELECT original_url, name, short_code, expires_at, urlid
+		SELECT original_url, name, short_code, expires_at, urlid, click_count
 		FROM urls
 		WHERE created_by = $1 AND is_deleted = false
 	`
@@ -86,7 +87,7 @@ func GetAllUrls(userId int) ([]URL, error) {
 	var urls []URL
 	for rows.Next() {
 		var url URL
-		err := rows.Scan(&url.OriginalURL, &url.Name, &url.ShortCode, &url.ExpiresAt, &url.UrlId)
+		err := rows.Scan(&url.OriginalURL, &url.Name, &url.ShortCode, &url.ExpiresAt, &url.UrlId, &url.ClickCount)
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
 			return nil, err
