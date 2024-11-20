@@ -12,13 +12,14 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
   BarChart2,
   Settings,
   LogOut,
   ChevronsLeft,
   Plus,
   QrCode,
+  ScanQrCode,
+  LinkIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -96,8 +97,21 @@ export function AppSidebar() {
               className="flex items-center"
             >
               <Link href="/dashboard/home">
-                <LayoutDashboard className="h-4 w-4" />
+                <LinkIcon className="h-4 w-4" />
                 <span>Dashboard</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="pr-2">
+            <SidebarMenuButton
+              tooltip="QR Codes"
+              isActive={pathname.includes("/dashboard/qr")}
+              asChild
+              className="flex items-center"
+            >
+              <Link href="/dashboard/qr">
+                <ScanQrCode className="h-4 w-4" />
+                <span>QR Codes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
