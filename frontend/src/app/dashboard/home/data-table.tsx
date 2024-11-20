@@ -37,8 +37,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import UrlShortenerStepForm from "@/components/url-shortener-step-form";
 import { Loader, Plus, ChevronDown } from "lucide-react";
+import UrlShortenerForm from "@/components/url-shortener-form";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -126,7 +126,7 @@ export function DataTable<TData, TValue>({
                 <DialogTitle>Add New URL</DialogTitle>
                 <DialogDescription>Add a new URL to shorten</DialogDescription>
               </DialogHeader>
-              <UrlShortenerStepForm />
+              <UrlShortenerForm isDialog={true} />
             </DialogContent>
           </Dialog>
         </div>

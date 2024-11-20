@@ -1,5 +1,3 @@
-// Deprecated: This file is no longer in use. It was used to create a form to create a short URL. Now ./url-shortener-step-form.tsx is used instead.
-
 "use client";
 
 import { useState } from "react";
@@ -85,13 +83,13 @@ export default function UrlShortenerForm({ isDialog }: { isDialog?: boolean }) {
   };
 
   return (
-    <div className="mt-10 p-6 bg-white dark:bg-black/90 outline outline-1 outline-gray-700 dark:outline-gray-400 rounded-lg shadow-md">
+    <div className="mt-10 p-6 bg-gray-100 dark:bg-transparent border rounded-lg shadow-lg">
       {!isDialog && (
         <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
           Create Short URL
         </h2>
       )}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
         <div className="space-y-2">
           <Label htmlFor="url" className="text-gray-700 dark:text-gray-200">
             URL*
@@ -210,10 +208,7 @@ export default function UrlShortenerForm({ isDialog }: { isDialog?: boolean }) {
           </div>
         )}
 
-        <Button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-        >
+        <Button type="submit" className="w-fit ml-auto mr-0">
           Create Short URL
         </Button>
       </form>

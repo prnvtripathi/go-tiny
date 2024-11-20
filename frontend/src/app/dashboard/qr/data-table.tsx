@@ -128,7 +128,7 @@ export function DataTable<TData, TValue>({
                   Fill in the form below to generate a new QR code.
                 </DialogDescription>
               </DialogHeader>
-              <QRCodeForm />
+              <QRCodeForm isDialog={true} />
             </DialogContent>
           </Dialog>
         </div>

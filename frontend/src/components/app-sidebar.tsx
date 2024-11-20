@@ -98,7 +98,7 @@ export function AppSidebar() {
             >
               <Link href="/dashboard/home">
                 <LinkIcon className="h-4 w-4" />
-                <span>Dashboard</span>
+                <span>Short URLs</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
