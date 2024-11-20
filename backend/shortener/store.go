@@ -66,7 +66,7 @@ func GetAllUrls(userId int) ([]URL, error) {
 	query := `
 		SELECT original_url, name, short_code, expires_at, url_id, click_count
 		FROM urls
-		WHERE created_by = $1 AND is_deleted = false
+		WHERE created_by = $1 AND is_deleted = false AND qr_code IS NULL
 	`
 
 	rows, err := DB.Query(context.Background(), query, userId)
