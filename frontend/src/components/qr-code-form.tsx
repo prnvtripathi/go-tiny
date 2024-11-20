@@ -22,19 +22,17 @@ import { formatRFC3339, format } from "date-fns";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export default function UrlShortenerStepForm() {
+export default function QRCodeForm() {
   // Form state
   const [currentStep, setCurrentStep] = useState(1);
   const [url, setUrl] = useState("");
-  const [shortCode, setShortCode] = useState("");
   const [name, setName] = useState("");
   const [expiryOption, setExpiryOption] = useState("");
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
-  const [isCustomExpiry, setIsCustomExpiry] = useState(false);
 
   const router = useRouter();
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
@@ -53,7 +51,7 @@ export default function UrlShortenerStepForm() {
 
     const expiryDate = calculateExpiryDate();
 
-    const response = await fetch(`/api/backend/send`, {
+    const responseFromShortURL = await fetch(`/api/backend/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,21 +60,37 @@ export default function UrlShortenerStepForm() {
         url,
         name,
         code: {
-          shortCode,
-          isCustomCode: !!shortCode,
+          shortCode: "",
+          isCustomCode: false,
         },
         expiryDate,
-        isCustomExpiry,
+        isCustomExpiry: expiryOption === "custom",
       }),
     });
 
-    const data = await response.json();
+    const data = await responseFromShortURL.json();
 
-    if (data.success) {
-      toast.success("Short URL created successfully");
-      router.push(`/dashboard`);
+    const response = await fetch(`/api/backend/generateqr`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: data.original_url,
+        url_id: data.url_id,
+        short_code: data.code,
+        size: 5,
+        error_correction: "M",
+      }),
+    });
+
+    const qrData = await response.json();
+
+    if (qrData?.success) {
+      toast.success("QR created successfully");
+      router.push(`/dashboard/qr`);
     } else {
-      toast.error(data.message);
+      toast.error(qrData?.data?.message);
     }
   };
 
@@ -128,33 +142,10 @@ export default function UrlShortenerStepForm() {
           {currentStep === 2 && (
             <div className="space-y-2">
               <Label
-                htmlFor="shortCode"
-                className="text-gray-700 dark:text-gray-200"
-              >
-                Custom Short Code (Optional)
-              </Label>
-              <Input
-                id="shortCode"
-                value={shortCode}
-                onChange={(e) => setShortCode(e.target.value)}
-                maxLength={8}
-                pattern="[A-Za-z0-9]{1,8}"
-                placeholder="If you want a custom short code, enter it here"
-                className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-              <Label className="text-gray-600 ml-1 text-xs dark:text-gray-500">
-                Custom short code can only contain letters and numbers
-              </Label>
-            </div>
-          )}
-
-          {currentStep === 3 && (
-            <div className="space-y-2">
-              <Label
                 htmlFor="name"
                 className="text-gray-700 dark:text-gray-200"
               >
-                Name for URL*
+                Name for QR*
               </Label>
               <Input
                 id="name"
@@ -167,7 +158,7 @@ export default function UrlShortenerStepForm() {
             </div>
           )}
 
-          {currentStep === 4 && (
+          {currentStep === 3 && (
             <div className="space-y-2">
               <Label
                 htmlFor="expiry"
@@ -209,10 +200,7 @@ export default function UrlShortenerStepForm() {
                       <Calendar
                         mode="single"
                         selected={customDate}
-                        onSelect={() => {
-                          setIsCustomExpiry(true);
-                          setCustomDate(customDate);
-                        }}
+                        onSelect={setCustomDate}
                         initialFocus
                         className="bg-white dark:bg-gray-800"
                       />

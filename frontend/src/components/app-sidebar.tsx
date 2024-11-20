@@ -18,6 +18,7 @@ import {
   LogOut,
   ChevronsLeft,
   Plus,
+  QrCode,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,14 +63,27 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="Home"
+              tooltip="Create a new URL"
               isActive={pathname === "/short"}
               asChild
               className="flex items-center"
             >
               <Link href="/short">
                 <Plus className="h-4 w-4" />
-                <span>Create a new URL</span>
+                <span>New short URL</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Create a new QR Code"
+              isActive={pathname === "/qr"}
+              asChild
+              className="flex items-center"
+            >
+              <Link href="/qr">
+                <QrCode className="h-4 w-4" />
+                <span>New QR Code</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

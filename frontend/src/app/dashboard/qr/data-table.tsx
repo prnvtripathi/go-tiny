@@ -37,8 +37,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import UrlShortenerStepForm from "@/components/url-shortener-step-form";
 import { Loader, Plus, ChevronDown } from "lucide-react";
+import QRCodeForm from "@/components/qr-code-form";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -118,15 +118,17 @@ export function DataTable<TData, TValue>({
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" /> Add New URL
+                <Plus className="mr-2 h-4 w-4" /> Add New QR
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Add New URL</DialogTitle>
-                <DialogDescription>Add a new URL to shorten</DialogDescription>
+                <DialogTitle>Generate a new QR</DialogTitle>
+                <DialogDescription>
+                  Fill in the form below to generate a new QR code.
+                </DialogDescription>
               </DialogHeader>
-              <UrlShortenerStepForm />
+              <QRCodeForm />
             </DialogContent>
           </Dialog>
         </div>

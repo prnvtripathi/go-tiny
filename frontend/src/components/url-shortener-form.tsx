@@ -1,3 +1,5 @@
+// Deprecated: This file is no longer in use. It was used to create a form to create a short URL. Now ./url-shortener-step-form.tsx is used instead.
+
 "use client";
 
 import { useState } from "react";

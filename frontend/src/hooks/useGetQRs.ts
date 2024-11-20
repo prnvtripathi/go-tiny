@@ -1,8 +1,8 @@
 import useSWR from "swr";
-import { Url } from "@/types";
+import { QR } from "@/types";
 
 interface UrlResponse {
-  urls: Url[];
+  qrs: QR[];
 }
 
 // Define fetcher function
@@ -16,14 +16,14 @@ const fetcher = async (url: string): Promise<UrlResponse> => {
   return response.json();
 };
 
-export function useGetUrls() {
+export function useGetQrs() {
   const { data, error, isLoading, mutate } = useSWR<UrlResponse>(
-    "/api/backend/getUrls",
+    "/api/backend/getQrs",
     fetcher
   );
 
   return {
-    urls: data?.urls ?? [],
+    qrs: data?.qrs ?? [],
     isLoading,
     isError: error,
     mutate,

@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Trash2,
   Copy,
+  QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +20,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { Url } from "@/types";
+import { QR } from "@/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Image from "next/image";
+import { toPng } from "html-to-image";
 
 export const columns = ({
   mutate,
 }: {
   mutate: () => void;
-}): ColumnDef<Url>[] => [
+}): ColumnDef<QR>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -118,30 +130,65 @@ export const columns = ({
     },
   },
   {
-    header: ({ column }) => {
-      return (
-        <span
-          className="flex items-center justify-start cursor-pointer"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Clicks
-          {column.getIsSorted() ? (
-            column.getIsSorted() === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4 transition-transform duration-200" />
-            ) : (
-              <ChevronUp className="ml-2 h-4 w-4 transform rotate-180 transition-transform duration-200" />
-            )
-          ) : (
-            <ChevronDown className="ml-2 h-4 w-4" />
-          )}
-        </span>
-      );
-    },
-    accessorKey: "click_count",
+    header: "QR Code",
+    accessorKey: "base64",
     cell: ({ row }) => {
-      const click_count: number = row.getValue("click_count");
+      const base_64: string = row.getValue("base64");
       return (
-        <span className="flex justify-center items-center">{click_count}</span>
+        <Dialog>
+          <DialogTrigger asChild>
+            <QrCode className="h-6 w-6" />
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>QR Code</DialogTitle>
+              <DialogDescription>
+                Scan this QR code to open the URL
+              </DialogDescription>
+            </DialogHeader>
+            <Image
+              src={`data:image/png;base64,${base_64}`}
+              alt="QR Code"
+              width={500}
+              height={500}
+              id="qr-code"
+            />
+            <DialogFooter>
+              <Button
+                variant="ghost"
+                onClick={() => navigator.clipboard.writeText(base_64)}
+              >
+                Copy QR Code as Base64
+              </Button>
+              <Button
+                onClick={async () => {
+                  const node = document.getElementById("qr-code");
+                  if (!node) {
+                    toast.error("QR code container not found");
+                    return;
+                  }
+
+                  try {
+                    const dataUrl = await toPng(node);
+                    const response = await fetch(dataUrl);
+                    const blob = await response.blob();
+
+                    // Copy the blob to the clipboard
+                    await navigator.clipboard.write([
+                      new ClipboardItem({ "image/png": blob }),
+                    ]);
+                    toast.success("Copied QR code as image");
+                  } catch (error) {
+                    console.error("Failed to copy QR code image:", error);
+                    toast.error("Failed to copy QR code as image");
+                  }
+                }}
+              >
+                Copy QR Code as Image
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       );
     },
   },
@@ -162,7 +209,7 @@ export const columns = ({
           mutate();
         } catch (error) {
           console.error(error);
-          toast.error("Failed to delete URL");
+          toast.error("Failed to delete QR");
         }
       };
 
@@ -191,7 +238,7 @@ export const columns = ({
               onClick={() => handleDelete(url.url_id)}
             >
               <Trash2 className="h-4 w-4" />
-              Delete URL
+              Delete QR
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
