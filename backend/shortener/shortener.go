@@ -21,6 +21,7 @@ type URLRequest struct {
 type URLResponse struct {
 	Success     bool   `json:"success"`
 	OriginalURL string `json:"original_url"`
+	URLID       int    `json:"url_id"`
 	Code        string `json:"code"`
 	Message     string `json:"message,omitempty"`
 }
@@ -84,7 +85,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		expiresAt = &parsedTime
 	}
 
-	err = SaveURL(req.URL, req.Name, code, req.CustomCodeEnabled, expiresAt, req.CustomExpiry, req.CreatedBy)
+	url_id, err := SaveURL(req.URL, req.Name, code, req.CustomCodeEnabled, expiresAt, req.CustomExpiry, req.CreatedBy)
 	if err != nil {
 		log.Printf("Failed to store URL: %v", err)
 		response := URLResponse{
@@ -100,6 +101,7 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		Success:     true,
 		OriginalURL: req.URL,
 		Code:        code,
+		URLID:       url_id,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

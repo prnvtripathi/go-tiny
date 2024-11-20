@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/prnvtripathi/go-url-api/qr"
 	"github.com/prnvtripathi/go-url-api/redirect"
 	"github.com/prnvtripathi/go-url-api/shortener"
 )
@@ -50,6 +51,8 @@ func main() {
 	http.Handle("/r/", RateLimiter(http.HandlerFunc(redirect.RedirectHandler)))
 	http.Handle("/getUrls", RateLimiter(http.HandlerFunc(getUrlsHandler)))
 	http.Handle("/deleteUrl", RateLimiter(http.HandlerFunc(deleteUrlHandler)))
+	http.Handle("/generateqr", RateLimiter(http.HandlerFunc(qr.GenerateQRCodeHandler)))
+	http.Handle("/getqrs", RateLimiter(http.HandlerFunc(getQRsHandler)))
 
 	// Determine the port
 	port := os.Getenv("PORT")
