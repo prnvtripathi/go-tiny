@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Trash2,
   Copy,
+  ChartSpline,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -149,6 +150,7 @@ export const columns = ({
     id: "actions",
     cell: ({ row }) => {
       const url = row.original;
+      const url_id = url.url_id;
 
       const handleDelete = async (id: number) => {
         try {
@@ -184,6 +186,15 @@ export const columns = ({
             >
               <Copy className="h-4 w-4" />
               Copy Short URL
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/dashboard/analytics/${url_id}`}
+                className="flex items-center gap-1"
+              >
+                <ChartSpline className="h-4 w-4" />
+                View Analytics
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

@@ -22,3 +22,19 @@ type QR struct {
 	ClickCount  int       `json:"click_count"`
 	Base64      string    `json:"base64"`
 }
+
+type Analytics struct {
+	UrlId      int             `json:"url_id"`
+	ClickCount int             `json:"click_count"`
+	Referrers  []AnalyticsData `json:"referrers"`
+	Browsers   []AnalyticsData `json:"browsers"`
+	OS         []AnalyticsData `json:"operating_systems"`
+	Countries  []AnalyticsData `json:"countries"`
+	Regions    []AnalyticsData `json:"regions"`
+	Cities     []AnalyticsData `json:"cities"`
+}
+
+type AnalyticsData struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}

@@ -53,6 +53,7 @@ func main() {
 	http.Handle("/deleteUrl", RateLimiter(http.HandlerFunc(deleteUrlHandler)))
 	http.Handle("/generateqr", RateLimiter(http.HandlerFunc(qr.GenerateQRCodeHandler)))
 	http.Handle("/getqrs", RateLimiter(http.HandlerFunc(getQRsHandler)))
+	http.Handle("/getanalytics", RateLimiter(http.HandlerFunc(getAnalyticsHandler)))
 
 	// Determine the port
 	port := os.Getenv("PORT")

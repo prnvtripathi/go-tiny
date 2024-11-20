@@ -16,3 +16,32 @@ export type QR = {
   scans: number;
   base_64: string;
 };
+
+export type Analytics = {
+  url_id: number;
+  click_count: number;
+  referrers: {
+    name: string;
+    count: number;
+  };
+  browsers: {
+    name: string;
+    count: number;
+  };
+  operating_systems: {
+    name: string;
+    count: number;
+  };
+  countries: {
+    name: string;
+    count: number;
+  };
+  regions: {
+    name: string;
+    count: number;
+  };
+  cities: {
+    name: string;
+    count: number;
+  };
+};

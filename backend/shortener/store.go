@@ -265,3 +265,116 @@ func SaveQRCodeInDB(urlID int, shortCode, base64QR string) error {
 	_, err := DB.Exec(context.Background(), query, base64QR, urlID, shortCode)
 	return err
 }
+
+// GetAnalytics retrieves analytics data for a URL.
+func GetAnalytics(userId, urlId int) (Analytics, error) {
+	// Initialize a fresh Analytics object
+	var analytics Analytics
+
+	query_clicks := `
+        SELECT click_count
+        FROM urls
+        WHERE created_by = $1 AND url_id = $2
+    `
+
+	click_count, err := DB.Query(context.Background(), query_clicks, userId, urlId)
+	if err != nil {
+		return Analytics{}, fmt.Errorf("URL not found: %v", err)
+	}
+	defer click_count.Close()
+
+	var clickCount int
+	for click_count.Next() {
+		err := click_count.Scan(&clickCount)
+		if err != nil {
+			log.Printf("Error scanning click count: %v", err)
+			return Analytics{}, err
+		}
+	}
+
+	query_analytics := `
+        SELECT referrer, browser, os, country, region, city
+        FROM url_analytics
+        WHERE url_id = $1
+    `
+
+	rows, err := DB.Query(context.Background(), query_analytics, urlId)
+	if err != nil {
+		log.Printf("Failed to get analytics: %v", err)
+		return Analytics{}, err
+	}
+	defer rows.Close()
+
+	// Create maps to avoid duplication
+	referrers := make(map[string]int)
+	browsers := make(map[string]int)
+	operating_systems := make(map[string]int)
+	countries := make(map[string]int)
+	regions := make(map[string]int)
+	cities := make(map[string]int)
+
+	for rows.Next() {
+		var referrer, browser, osValue, country, region, city string
+		err := rows.Scan(&referrer, &browser, &osValue, &country, &region, &city)
+		if err != nil {
+			log.Printf("Error scanning row: %v", err)
+			return Analytics{}, err
+		}
+
+		// Replace empty values with "Others/Not Tracked"
+		if referrer == "" {
+			referrer = "Others/Not Tracked"
+		}
+		if browser == "" {
+			browser = "Others/Not Tracked"
+		}
+		if osValue == "" {
+			osValue = "Others/Not Tracked"
+		}
+		if country == "" {
+			country = "Others/Not Tracked"
+		}
+		if region == "" {
+			region = "Others/Not Tracked"
+		}
+		if city == "" {
+			city = "Others/Not Tracked"
+		}
+
+		// Increment counts for each category
+		referrers[referrer]++
+		browsers[browser]++
+		operating_systems[osValue]++
+		countries[country]++
+		regions[region]++
+		cities[city]++
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Printf("Row iteration error: %v", err)
+		return Analytics{}, err
+	}
+
+	// Convert maps to slices of AnalyticsData
+	analytics = Analytics{
+		UrlId:      urlId,
+		ClickCount: clickCount,
+		Referrers:  mapToAnalyticsData(referrers),
+		Browsers:   mapToAnalyticsData(browsers),
+		OS:         mapToAnalyticsData(operating_systems),
+		Countries:  mapToAnalyticsData(countries),
+		Regions:    mapToAnalyticsData(regions),
+		Cities:     mapToAnalyticsData(cities),
+	}
+
+	return analytics, nil
+}
+
+// Helper function to convert map[string]int to []AnalyticsData
+func mapToAnalyticsData(data map[string]int) []AnalyticsData {
+	result := make([]AnalyticsData, 0, len(data))
+	for name, count := range data {
+		result = append(result, AnalyticsData{Name: name, Count: count})
+	}
+	return result
+}
