@@ -80,7 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(() => {
         if (user) {
           token.username = (user as ExtendedUser).username;
           token.image = (user as ExtendedUser).image;
-          token.userid = (user as ExtendedUser).userid
+          token.userid = (user as ExtendedUser).userid;
         }
         // console.log("JWT token:", token);
         return token;
@@ -105,7 +105,9 @@ interface LoginCredentials {
 }
 
 // Modify `login` to return `ExtendedUser | null`
-async function login(credentials: LoginCredentials): Promise<ExtendedUser | null> {
+async function login(
+  credentials: LoginCredentials
+): Promise<ExtendedUser | null> {
   const { email, password } = credentials;
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not defined");
