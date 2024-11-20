@@ -9,6 +9,8 @@ import {
   Trash2,
   Copy,
   QrCode,
+  CopyIcon,
+  ArrowDownToLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -134,6 +136,7 @@ export const columns = ({
     accessorKey: "base64",
     cell: ({ row }) => {
       const base_64: string = row.getValue("base64");
+      const name: string = row.getValue("name");
       return (
         <Dialog>
           <DialogTrigger asChild>
@@ -152,15 +155,12 @@ export const columns = ({
               width={500}
               height={500}
               id="qr-code"
+              className="mx-auto rounded-md"
             />
             <DialogFooter>
               <Button
-                variant="ghost"
-                onClick={() => navigator.clipboard.writeText(base_64)}
-              >
-                Copy QR Code as Base64
-              </Button>
-              <Button
+                size="icon"
+                variant="outline"
                 onClick={async () => {
                   const node = document.getElementById("qr-code");
                   if (!node) {
@@ -184,7 +184,36 @@ export const columns = ({
                   }
                 }}
               >
-                Copy QR Code as Image
+                <CopyIcon className="h-6 w-6" />
+              </Button>
+              <Button
+                size="icon"
+                onClick={async () => {
+                  const node = document.getElementById("qr-code");
+                  if (!node) {
+                    toast.error("QR code container not found");
+                    return;
+                  }
+
+                  try {
+                    const dataUrl = await toPng(node);
+                    const response = await fetch(dataUrl);
+                    const blob = await response.blob();
+
+                    // Download the blob as a file
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${name}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  } catch (error) {
+                    console.error("Failed to download QR code image:", error);
+                    toast.error("Failed to download QR code as image");
+                  }
+                }}
+              >
+                <ArrowDownToLine className="h-6 w-6" />
               </Button>
             </DialogFooter>
           </DialogContent>
