@@ -191,7 +191,7 @@ export const columns = ({
                 onClick={async () => {
                   const node = document.getElementById("qr-code");
                   if (!node) {
-                    toast.error("QR code container not found");
+                    toast.error("QR code not found");
                     return;
                   }
 
