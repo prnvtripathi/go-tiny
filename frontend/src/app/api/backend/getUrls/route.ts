@@ -23,8 +23,8 @@ export const GET = async () => {
         short_code: `${process.env.BACKEND_URL}/r/${url.short_code}`,
       };
     });
-    console.log(updatedUrls);
-    console.log(data);
+    // console.log(updatedUrls);
+    // console.log(data);
     return NextResponse.json({ urls: updatedUrls });
   } catch (error) {
     console.error("Error in GET handler:", error);

@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
         });
         const data = await res.json();
         setAnalytics(data?.data?.analytics);
-        console.log("analytics", data?.data?.analytics);
+        // console.log("analytics", data?.data?.analytics);
       } catch (error) {
         console.error("Error in fetching analytics:", error);
       } finally {

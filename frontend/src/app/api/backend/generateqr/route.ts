@@ -32,11 +32,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: error.message });
     }
 
-    console.log(response);
+    // console.log(response);
 
     const data = await response.json();
 
-    console.log(data);
+    // console.log(data);
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error(error);
